@@ -63,9 +63,7 @@ st.markdown("""
 
 st.markdown('<div class="header">🌤️ Weather Dashboard</div>', unsafe_allow_html=True)
 
-# -----------------------------
-# DATA
-# -----------------------------
+
 def generate_weather():
     temps = np.random.randint(20, 40, size=(3, 7))
     conditions_list = ["Clear", "Clouds", "Rain", "Thunderstorm"]
@@ -78,9 +76,7 @@ days = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]
 def get_icon(c):
     return {"Clear":"☀️","Clouds":"☁️","Rain":"🌧️","Thunderstorm":"⛈️"}.get(c,"🌈")
 
-# -----------------------------
-# HERO SECTION (🔥 MAIN FOCUS)
-# -----------------------------
+
 avg_temp = int(np.mean(temps))
 condition = conditions[-1][0]
 icon = get_icon(condition)
@@ -93,18 +89,13 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# -----------------------------
-# STATS ROW
-# -----------------------------
+
 col1, col2, col3 = st.columns(3)
 
 col1.markdown(f'<div class="card"><h3>Min</h3><h2>{np.min(temps)}°C</h2></div>', unsafe_allow_html=True)
 col2.markdown(f'<div class="card"><h3>Max</h3><h2>{np.max(temps)}°C</h2></div>', unsafe_allow_html=True)
 col3.markdown(f'<div class="card"><h3>Average</h3><h2>{np.mean(temps):.1f}°C</h2></div>', unsafe_allow_html=True)
 
-# -----------------------------
-# WEEKLY FORECAST
-# -----------------------------
 st.subheader("7-Day Forecast")
 
 cols = st.columns(7)
@@ -122,9 +113,7 @@ for i, col in enumerate(cols):
         </div>
         """, unsafe_allow_html=True)
 
-# -----------------------------
-# NEXT WEEK
-# -----------------------------
+
 st.subheader("Next Week Prediction")
 
 forecast = np.mean(temps[-2:], axis=0)
@@ -139,9 +128,7 @@ for i, col in enumerate(cols):
         </div>
         """, unsafe_allow_html=True)
 
-# -----------------------------
-# CHARTS
-# -----------------------------
+
 c1, c2 = st.columns(2)
 
 with c1:
@@ -152,8 +139,6 @@ with c2:
     st.subheader("Variation")
     st.line_chart(np.std(temps, axis=0))
 
-# -----------------------------
-# REFRESH
-# -----------------------------
+
 if st.button("🔄 Refresh Data"):
     st.rerun()
