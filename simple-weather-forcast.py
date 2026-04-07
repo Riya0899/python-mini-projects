@@ -8,7 +8,7 @@ st.markdown("""
 <style>
 
 .main {
-    background: #f5f7fb;
+    background: skyblue;
 }
 
 /* Header */
@@ -20,11 +20,12 @@ st.markdown("""
 
 /* Hero Card */
 .hero {
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: skyblue;
     color: white;
     padding: 30px;
     border-radius: 20px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+     margin-bottom: 25px;
 }
 
 /* Cards */
@@ -34,8 +35,10 @@ st.markdown("""
     border-radius: 16px;
     box-shadow: 0 6px 18px rgba(0,0,0,0.08);
     text-align: center;
-    transition: 0.3s;
+    transition: 0.6s;
     color:black;
+    width:80%;
+    margin:auto;
 }
 
 .card:hover {
