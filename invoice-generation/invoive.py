@@ -5,9 +5,8 @@ import datetime
 
 st.set_page_config(page_title="Smart Invoice Dashboard", layout="wide")
 
-# ==============================
-# 🎨 UI DESIGN
-# ==============================
+# UI DESIGN
+
 st.markdown("""
 <style>
 .stApp {
@@ -24,9 +23,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ==============================
-# 🔐 LOGIN
-# ==============================
+# LOGIN
 def load_users():
     return pd.read_csv("user.csv")
 
@@ -50,20 +47,9 @@ if not st.session_state.logged_in:
             st.error("Invalid credentials")
     st.stop()
 
-# ==============================
-# 🌗 THEME
-# ==============================
-theme = st.sidebar.radio("Theme", ["Dark", "Light"])
-if theme == "Light":
-    st.markdown("<style>.stApp {background:white; color:black}</style>", unsafe_allow_html=True)
 
-if st.sidebar.button("Logout"):
-    st.session_state.logged_in = False
-    st.rerun()
 
-# ==============================
-# 🧾 HEADER
-# ==============================
+# HEADER
 st.markdown("""
 <div style="
     background: linear-gradient(135deg, #ff4b4b, #ff6b6b);
@@ -76,9 +62,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ==============================
-# 📂 LOAD DATA (AUTO FIX)
-# ==============================
+# LOAD DATA 
 @st.cache_data
 def load_data():
     df = pd.read_csv("r-data.csv")
@@ -97,9 +81,7 @@ def load_data():
 
 df = load_data()
 
-# ==============================
-# 🔍 FILTERS (FIXED)
-# ==============================
+# FILTERS 
 st.sidebar.header("🔍 Filters")
 
 search = st.sidebar.text_input("Search Item")
@@ -163,26 +145,18 @@ filtered = df[
 if search:
     filtered = filtered[filtered["item"].str.contains(search, case=False)]
 
-# ==============================
 # NAVIGATION
-# ==============================
 page = st.radio("", ["Billing", "Analytics", "Customers"], horizontal=True)
 
-# ==============================
-# 🧾 BILLING
-# ==============================
-# ==============================
-# 🧾 BILLING
-# ==============================
+
+# BILLING
 if page == "Billing":
 
     st.subheader("Generate Invoice")
 
-    
 
-    # ==============================
-# 🧾 BILLING (RESTAURANT STYLE)
-# ==============================
+# BILLING
+
 if page == "Billing":
 
     st.subheader("🍽️ Menu")
@@ -227,9 +201,7 @@ if page == "Billing":
 
     st.markdown("---")
 
-    # ==============================
-    # 🧾 BILL SUMMARY
-    # ==============================
+    # BILL SUMMARY
     if st.button("Generate Invoice"):
 
         if not cart:
@@ -255,16 +227,13 @@ if page == "Billing":
             csv = invoice_df.to_csv(index=False).encode()
             st.download_button("Download Invoice", csv, "invoice.csv")
 
-# ==============================
-# 📊 ANALYTICS
-# ==============================
+# ANALYTICS
 
 elif page == "Analytics":
 
     st.subheader("Analytics")
-    # ==============================
-    # 🎯 KPI CARDS (STATIC DESIGN)
-    # ==============================
+
+# KPI CARDS (STATIC DESIGN)
     total_revenue = filtered["total"].sum()
     total_orders = len(filtered)
     avg_rating = filtered["rating"].mean()
@@ -302,12 +271,6 @@ elif page == "Analytics":
 
     st.markdown("---")
 
-    # c1, c2, c3, c4 = st.columns(4)
-
-    # c1.metric("Revenue", f"₹{filtered['total'].sum():,.0f}")
-    # c2.metric("Profit", f"₹{filtered['profit'].sum():,.0f}")
-    # c3.metric("Orders", len(filtered))
-    # c4.metric("Avg Order", f"₹{filtered['total'].mean():.0f}")
 
     st.markdown("### Daily Trend")
     st.line_chart(filtered.groupby("date")["total"].sum())
@@ -324,9 +287,8 @@ elif page == "Analytics":
     st.markdown("### Day-wise Sales")
     st.bar_chart(filtered.groupby("day_name")["total"].sum())
 
-# ==============================
-# 👥 CUSTOMERS
-# ==============================
+# CUSTOMERS
+
 elif page == "Customers":
 
     st.subheader("Customer Insights")
@@ -335,8 +297,7 @@ elif page == "Customers":
 
     st.dataframe(cust)
 
-# ==============================
-# 📥 DOWNLOAD DATA
-# ==============================
+# DOWNLOAD DATA
+
 csv = filtered.to_csv(index=False).encode()
 st.download_button("Download Data", csv, "filtered_data.csv")
