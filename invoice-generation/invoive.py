@@ -6,7 +6,6 @@ import datetime
 st.set_page_config(page_title="Smart Invoice Dashboard", layout="wide")
 
 # UI DESIGN
-
 st.markdown("""
 <style>
 .stApp {
@@ -46,8 +45,12 @@ if not st.session_state.logged_in:
         else:
             st.error("Invalid credentials")
     st.stop()
+    
+st.sidebar.markdown("---")
 
-
+if st.sidebar.button("🚪 Logout"):
+    st.session_state.logged_in = False
+    st.rerun()
 
 # HEADER
 st.markdown("""
@@ -62,7 +65,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# LOAD DATA 
+# LOAD DATA
 @st.cache_data
 def load_data():
     df = pd.read_csv("r-data.csv")
@@ -70,7 +73,6 @@ def load_data():
     df["total"] = df["price"] * df["qty"]
     df["profit"] = df["total"] * 0.3
 
-    # Auto create date if missing
     if "date" not in df.columns:
         df["date"] = pd.date_range(start="2024-01-01", periods=len(df))
 
@@ -81,57 +83,32 @@ def load_data():
 
 df = load_data()
 
-# FILTERS 
+# FILTERS
 st.sidebar.header("🔍 Filters")
 
 search = st.sidebar.text_input("Search Item")
 
-category = st.sidebar.multiselect(
-    "Category",
-    df["category"].unique(),
-    df["category"].unique()
-)
+category = st.sidebar.multiselect("Category", df["category"].unique(), df["category"].unique())
+customer = st.sidebar.multiselect("Customer", df["customer"].unique(), df["customer"].unique())
 
-customer = st.sidebar.multiselect(
-    "Customer",
-    df["customer"].unique(),
-    df["customer"].unique()
-)
+price = st.sidebar.slider("Price", int(df.price.min()), int(df.price.max()),
+                         (int(df.price.min()), int(df.price.max())))
 
-price = st.sidebar.slider(
-    "Price",
-    int(df.price.min()),
-    int(df.price.max()),
-    (int(df.price.min()), int(df.price.max()))
-)
+rating = st.sidebar.slider("Rating", float(df.rating.min()), float(df.rating.max()),
+                          (float(df.rating.min()), float(df.rating.max())))
 
-rating = st.sidebar.slider(
-    "Rating",
-    float(df.rating.min()),
-    float(df.rating.max()),
-    (float(df.rating.min()), float(df.rating.max()))
-)
+qty = st.sidebar.slider("Quantity", int(df.qty.min()), int(df.qty.max()),
+                       (int(df.qty.min()), int(df.qty.max())))
 
-qty = st.sidebar.slider(
-    "Quantity",
-    int(df.qty.min()),
-    int(df.qty.max()),
-    (int(df.qty.min()), int(df.qty.max()))
-)
-
-profit_range = st.sidebar.slider(
-    "Profit",
-    int(df.profit.min()),
-    int(df.profit.max()),
-    (int(df.profit.min()), int(df.profit.max()))
-)
+profit_range = st.sidebar.slider("Profit", int(df.profit.min()), int(df.profit.max()),
+                                (int(df.profit.min()), int(df.profit.max())))
 
 start_date, end_date = st.sidebar.date_input(
     "Date Range",
     [df["date"].min(), df["date"].max()]
 )
 
-# Apply filters
+# APPLY FILTERS
 filtered = df[
     (df["category"].isin(category)) &
     (df["customer"].isin(customer)) &
@@ -150,30 +127,22 @@ page = st.radio("", ["Billing", "Analytics", "Customers"], horizontal=True)
 
 
 # BILLING
-if page == "Billing":
-
-    st.subheader("Generate Invoice")
-
-
-# BILLING
 
 if page == "Billing":
 
     st.subheader("🍽️ Menu")
 
     items_list = filtered["item"].unique()
-
     cart = []
     total = 0
 
-    # Create grid (3 items per row)
     cols = st.columns(3)
 
     for i, item in enumerate(items_list):
 
         col = cols[i % 3]
-
         item_df = filtered[filtered["item"] == item]
+
         price = int(item_df["price"].mean())
         rating = float(item_df["rating"].mean())
 
@@ -186,13 +155,7 @@ if page == "Billing":
             </div>
             """, unsafe_allow_html=True)
 
-            qty = st.number_input(
-                f"Qty ({item})",
-                min_value=0,
-                max_value=10,
-                step=1,
-                key=f"{item}"
-            )
+            qty = st.number_input(f"Qty ({item})", 0, 10, key=f"{item}")
 
             if qty > 0:
                 amount = price * qty
@@ -201,13 +164,12 @@ if page == "Billing":
 
     st.markdown("---")
 
-    # BILL SUMMARY
     if st.button("Generate Invoice"):
 
         if not cart:
             st.warning("Please select at least one item")
         else:
-            st.balloons()
+            st.success("✅ Invoice Generated Successfully")
 
             final = total * 0.9
 
@@ -223,8 +185,9 @@ if page == "Billing":
             st.success(f"Final (10% off): ₹{final}")
 
             st.markdown('</div>', unsafe_allow_html=True)
+            # st.balloons()
 
-            csv = invoice_df.to_csv(index=False).encode()
+            csv = invoice_df.to_csv(index=False).encode()  # converts string into bytes
             st.download_button("Download Invoice", csv, "invoice.csv")
 
 # ANALYTICS
@@ -233,7 +196,6 @@ elif page == "Analytics":
 
     st.subheader("Analytics")
 
-# KPI CARDS (STATIC DESIGN)
     total_revenue = filtered["total"].sum()
     total_orders = len(filtered)
     avg_rating = filtered["rating"].mean()
@@ -241,36 +203,12 @@ elif page == "Analytics":
 
     col1, col2, col3, col4 = st.columns(4)
 
-    col1.markdown(f"""
-    <div class="glass">
-        <h4>💰 Revenue</h4>
-        <h2>₹{total_revenue:,.0f}</h2>
-    </div>
-    """, unsafe_allow_html=True)
-
-    col2.markdown(f"""
-    <div class="glass">
-        <h4>📦 Orders</h4>
-        <h2>{total_orders}</h2>
-    </div>
-    """, unsafe_allow_html=True)
-
-    col3.markdown(f"""
-    <div class="glass">
-        <h4>⭐ Rating</h4>
-        <h2>{avg_rating:.1f}</h2>
-    </div>
-    """, unsafe_allow_html=True)
-
-    col4.markdown(f"""
-    <div class="glass">
-        <h4>💸 Profit</h4>
-        <h2>₹{total_profit:,.0f}</h2>
-    </div>
-    """, unsafe_allow_html=True)
+    col1.markdown(f"""<div class="glass"><h4>💰 Revenue</h4><h2>₹{total_revenue:,.0f}</h2></div>""", unsafe_allow_html=True)
+    col2.markdown(f"""<div class="glass"><h4>📦 Orders</h4><h2>{total_orders}</h2></div>""", unsafe_allow_html=True)
+    col3.markdown(f"""<div class="glass"><h4>⭐ Rating</h4><h2>{avg_rating:.1f}</h2></div>""", unsafe_allow_html=True)
+    col4.markdown(f"""<div class="glass"><h4>💸 Profit</h4><h2>₹{total_profit:,.0f}</h2></div>""", unsafe_allow_html=True)
 
     st.markdown("---")
-
 
     st.markdown("### Daily Trend")
     st.line_chart(filtered.groupby("date")["total"].sum())
@@ -294,10 +232,8 @@ elif page == "Customers":
     st.subheader("Customer Insights")
 
     cust = filtered.groupby("customer")["total"].sum().reset_index()
-
     st.dataframe(cust)
 
 # DOWNLOAD DATA
-
 csv = filtered.to_csv(index=False).encode()
 st.download_button("Download Data", csv, "filtered_data.csv")
