@@ -1,10 +1,29 @@
+import os
+
 import streamlit as st
 import pdfplumber
 from google import genai
 from google.genai import types
 from sklearn.metrics.pairwise import cosine_similarity
+import os
+from dotenv import load_dotenv
 
-client = genai.Client(api_key="AIzaSyCnB_tPFMUp2QdTgxQmREnrcc5iVoorv-Y")
+load_dotenv()
+
+api_key = os.getenv("GOOGLE_API_KEY")
+
+if not api_key:
+    st.error("API key not found. Please check your .env file.")
+    st.stop()
+
+client = genai.Client(api_key=api_key)
+
+api_key = os.getenv("GOOGLE_API_KEY")
+client = genai.Client(api_key=api_key)
+
+if not api_key:
+    st.error("API key not found. Please check your .env file.")
+    st.stop()
 
 def get_embedding(text):
     result = client.models.embed_content(
