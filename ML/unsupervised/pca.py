@@ -10,7 +10,6 @@
 
 # dimensionality reduction means reducing the number of features in the data while retaining as much information as possible
 
-
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
