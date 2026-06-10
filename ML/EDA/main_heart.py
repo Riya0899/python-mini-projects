@@ -1,5 +1,12 @@
 # train a model to predict heart disease
-
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score,f1_score,classification_report
+from sklearn.linear_model import LogisticRegression
+from sklearn.naive_bayes import GaussianNB
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.svm import SVC
+from sklearn.neighbors import KNeighborsClassifier
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -60,7 +67,7 @@ sns.countplot(x = df['Sex'], hue= df['HeartDisease'])
 # plt.show()
 
 sns.heatmap(df.corr(numeric_only=True), annot=True)
-plt.show()
+# plt.show()
 
 #DATA PREPROCESSING
 df_encode=pd.get_dummies(df, drop_first=False)
@@ -70,5 +77,37 @@ from sklearn.preprocessing import StandardScaler
 numerical_cols=['Age', 'RestingBP', 'Cholesterol', 'MaxHR', 'Oldpeak']
 scaler=StandardScaler()
 df_encode[numerical_cols]=scaler.fit_transform(df_encode[numerical_cols])
-print(df_encode.head())
+print(df_encode.columns)
+
+x=df_encode.drop('HeartDisease',axis=1)
+y=df_encode['HeartDisease']
+
+X_train, X_test, y_train, y_test=train_test_split(x, y, test_size=0.2, random_state=42)
+
+scaler=StandardScaler()
+x_train_scaled=scaler.fit_transform(X_train)
+x_test_scaled=scaler.fit_transform(X_test)
+
+models = {
+    "logistic Regression":LogisticRegression(),
+    "KNN":KNeighborsClassifier(),
+    "Naive bayes":GaussianNB(),
+    "Decision tree":DecisionTreeClassifier(),
+    "Svm":SVC()
+}
+result=[]
+
+for name,model in models.items():
+    model.fit(x_train_scaled,y_train)
+    y_pred=model.predict(x_test_scaled)
+    acc=accuracy_score(y_test,y_pred)
+    f1=f1_score(y_test,y_pred)
+    result.append({
+        'model':name,
+        'accuracy':round(acc,4),
+        'fi_score':round(f1,4)
+    })
+print(result)
+
+
 
