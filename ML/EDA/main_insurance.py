@@ -149,4 +149,23 @@ final_df = df_cleaned[
      'region_southeast', 'bmi_category_Obese']
 ]
 
-print(final_df)
+# print(final_df)
+from sklearn.model_selection import train_test_split
+x= final_df.drop('charges', axis=1)
+y= final_df['charges']
+
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
+
+from sklearn.linear_model import LinearRegression
+model=LinearRegression()
+model.fit(x_train, y_train)
+y_pred=model.predict(x_test)
+
+y_pred=model.predict(x_test)
+
+from sklearn.metrics import r2_score
+
+r2=r2_score(y_test, y_pred)
+n=x_test.shape[0]
+p=x_test.shape[1]
+adjusted_r2=1-(1-r2)*(n-1)/(n-p-1)
