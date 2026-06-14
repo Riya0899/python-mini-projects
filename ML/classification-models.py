@@ -81,6 +81,8 @@ print(classification_report(y_test, y_pred_svm))
 #######################################################################
 #CROSS VALIDATION
 from sklearn.model_selection import cross_val_score
+
+
 X=df.drop('survived', axis=1)
 y=df['survived']
 
